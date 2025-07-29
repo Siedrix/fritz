@@ -10,15 +10,15 @@ app.use(express.json());
 // In-memory storage for counters
 const counters: Record<string, { count: number; lastClick: string }> = {};
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Delphi Server is running!' });
+app.get('/api', (req, res) => {
+  res.json({ message: 'Delphi Server API is running!' });
 });
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.get('/counters', (req, res) => {
+app.get('/api/counters', (req, res) => {
   const countersList = Object.entries(counters).map(([uuid, data]) => ({
     uuid,
     ...data
@@ -26,7 +26,7 @@ app.get('/counters', (req, res) => {
   res.json(countersList);
 });
 
-app.get('/counter/:uuid', (req, res) => {
+app.get('/api/counter/:uuid', (req, res) => {
   const { uuid } = req.params;
   
   if (!counters[uuid]) {
@@ -36,7 +36,7 @@ app.get('/counter/:uuid', (req, res) => {
   res.json(counters[uuid]);
 });
 
-app.post('/counter/:uuid', (req, res) => {
+app.post('/api/counter/:uuid', (req, res) => {
   const { uuid } = req.params;
   
   if (!counters[uuid]) {
@@ -49,7 +49,7 @@ app.post('/counter/:uuid', (req, res) => {
   res.json(counters[uuid]);
 });
 
-app.delete('/counter/:uuid', (req, res) => {
+app.delete('/api/counter/:uuid', (req, res) => {
   const { uuid } = req.params;
   
   if (counters[uuid]) {
