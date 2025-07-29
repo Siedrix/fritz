@@ -1,0 +1,24 @@
+{
+  "project": {
+    "name": "FritzSample"
+  },
+  "paths": {
+    "logs": "logs/",
+    "fixtures": "fixtures/",
+    "fingerprints": "fingerprints/",
+    "tasks": "src/tasks/",
+    "runners": "src/runners/",
+    "tests": "src/tests/"
+  },
+  "infra": {
+    "region": "us-west-2",
+    "bucket": ""
+  },
+  "tasks": {
+    "stock:getPrice": {
+      "path": "src/tasks/stock/getPrice.ts",
+      "handler": "getPrice"
+    }
+  },
+  "runners": {}
+}

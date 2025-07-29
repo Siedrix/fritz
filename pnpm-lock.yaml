@@ -85,6 +85,15 @@ importers:
         specifier: ^5.0.0
         version: 5.8.3
 
+  packages/forge-sample:
+    dependencies:
+      '@forgehive/schema':
+        specifier: ^0.1.4
+        version: 0.1.4
+      '@forgehive/task':
+        specifier: ^0.2.5
+        version: 0.2.5
+
 packages:
 
   /@ampproject/remapping@2.3.0:
@@ -822,6 +831,18 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@forgehive/schema@0.1.4:
+    resolution: {integrity: sha512-EXCvzA4SNH4cY1g3tdlGpC6yZ9KWRki5F1MYuXSfzKjD7Zmq/lJ7+FWKdkuIZnvtOtiF9SAt0NHZFdvBFh8p4A==}
+    dependencies:
+      zod: 3.25.76
+    dev: false
+
+  /@forgehive/task@0.2.5:
+    resolution: {integrity: sha512-7v8XldkA2iV+NPdvG96MznBTUDdfbotV44w9YyGrhK6Eo9dwapCvhSKxipaEo9OoxSyCsYzF9NOa6j3S3mYW2w==}
+    dependencies:
+      '@forgehive/schema': 0.1.4
+    dev: false
 
   /@isaacs/cliui@8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -2941,3 +2962,7 @@ packages:
   /yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
     dev: true
+
+  /zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+    dev: false
