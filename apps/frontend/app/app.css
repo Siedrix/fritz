@@ -3,13 +3,89 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  
+  /* Custom Color Palette */
+  
+  /* Deep Navy Blue */
+  --color-navy-50: #f5f7f9;
+  --color-navy-100: #e8eef2;
+  --color-navy-200: #c7d7e2;
+  --color-navy-300: #94b5c9;
+  --color-navy-400: #5a8dad;
+  --color-navy-500: #1c3547;
+  --color-navy-600: #182e3e;
+  --color-navy-700: #132333;
+  --color-navy-800: #0e1a28;
+  --color-navy-900: #09111d;
+  --color-navy-950: #050a12;
+  
+  /* Cool Gray */
+  --color-gray-50: #f7f8f8;
+  --color-gray-100: #eeeff0;
+  --color-gray-200: #d3d6d7;
+  --color-gray-300: #a8afb1;
+  --color-gray-400: #737f82;
+  --color-gray-500: #3e5152;
+  --color-gray-600: #354546;
+  --color-gray-700: #2a3839;
+  --color-gray-800: #1f2a2b;
+  --color-gray-900: #141d1e;
+  --color-gray-950: #0a1011;
+  
+  /* Golden Yellow */
+  --color-yellow-50: #fefdf5;
+  --color-yellow-100: #fdfae8;
+  --color-yellow-200: #faf2c7;
+  --color-yellow-300: #f5e394;
+  --color-yellow-400: #eece5a;
+  --color-yellow-500: #dc991b;
+  --color-yellow-600: #bb8217;
+  --color-yellow-700: #976612;
+  --color-yellow-800: #734f0e;
+  --color-yellow-900: #4f3709;
+  --color-yellow-950: #2a1e05;
+  
+  /* Base Orange */
+  --color-orange-50: #fef8f5;
+  --color-orange-100: #fef0e8;
+  --color-orange-200: #fddcc7;
+  --color-orange-300: #fbc194;
+  --color-orange-400: #f7995a;
+  --color-orange-500: #ea870a;
+  --color-orange-600: #c77309;
+  --color-orange-700: #a15c07;
+  --color-orange-800: #7a4605;
+  --color-orange-900: #532f03;
+  --color-orange-950: #2c1902;
+  
+  /* Vibrant Orange-Red */
+  --color-red-50: #fef6f5;
+  --color-red-100: #fdece8;
+  --color-red-200: #fad4cc;
+  --color-red-300: #f5b39f;
+  --color-red-400: #ed8a6b;
+  --color-red-500: #df553f;
+  --color-red-600: #bd4835;
+  --color-red-700: #963a2a;
+  --color-red-800: #712c20;
+  --color-red-900: #4c1e15;
+  --color-red-950: #26100b;
+  
+  /* Primary Blue */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  @apply bg-navy-900 text-gray-100;
 }

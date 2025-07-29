@@ -30,10 +30,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { counters }: { counters: CounterWithUuid[] } = loaderData;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-center mb-8 text-gray-100">
             Counter Rooms
           </h1>
           
@@ -42,7 +42,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <input type="hidden" name="action" value="create" />
               <button
                 type="submit"
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+                className="bg-primary-500 hover:bg-primary-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
               >
                 Create New Room
               </button>
@@ -50,7 +50,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
           
           {counters.length === 0 ? (
-            <div className="text-center text-gray-600 dark:text-gray-400">
+            <div className="text-center text-gray-300">
               No rooms yet. Create your first room!
             </div>
           ) : (
@@ -59,18 +59,18 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 <Link
                   key={counter.uuid}
                   to={`/rooms/${counter.uuid}`}
-                  className="block bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-200"
+                  className="block bg-navy-700 hover:bg-navy-600 rounded-lg shadow-lg p-6 transition duration-200 border border-navy-500"
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      <h3 className="text-lg font-semibold text-gray-100 mb-1">
                         Room {counter.uuid.slice(0, 8)}...
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="text-sm text-gray-300">
                         Last activity: {new Date(counter.lastClick).toLocaleString()}
                       </p>
                     </div>
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <div className="text-2xl font-bold text-yellow-400">
                       {counter.count}
                     </div>
                   </div>
