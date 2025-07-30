@@ -1,4 +1,4 @@
-import { getPrice } from '../../../../packages/forge-sample';
+import { getPrice } from '@fritz/forge-sample';
 
 export interface TickerData {
   ticker: string;
