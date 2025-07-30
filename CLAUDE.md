@@ -6,11 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a full-stack application called "Delphi" (formerly "Fritz") with a monorepo structure using pnpm workspaces:
 
-- **apps/frontend/**: React Router v7 frontend with TailwindCSS
+- **apps/frontend/**: React Router v7 frontend with TailwindCSS for ticker management
 - **apps/server/**: Express.js API server with TypeScript
+- **packages/forge-sample/**: ForgeHive task management with stock price fetching
 - **Root workspace**: Contains shared scripts and dependencies
 
-The application is a counter management system where users can create and manage counters via unique UUIDs.
+The application is a ticker management system where users can add stock tickers and fetch their current prices on the home page.
 
 ## Common Development Commands
 
