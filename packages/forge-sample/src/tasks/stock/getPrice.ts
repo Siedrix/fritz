@@ -22,7 +22,7 @@ const boundaries = {
       throw new Error(`Failed to fetch stock price for ${ticker}: ${response.statusText}`)
     }
 
-    const data = await response.json()
+    const data = await response.json() as any
     const price = data.chart.result[0].meta.regularMarketPrice
     return {price}
   }
