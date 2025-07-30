@@ -1,5 +1,5 @@
 {
-  "name": "delphi",
+  "name": "fritz",
   "private": true,
   "scripts": {
     "dev": "pnpm -r dev",
