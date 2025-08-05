@@ -33,12 +33,8 @@ export const getPrice = createTask({
   description,
   schema,
   boundaries,
-  fn: async function ({ ticker }, { fetchStockPrice, setMetadata, setMetrics }): Promise<{ ticker: string, price: number, date: string }> {
+  fn: async function ({ ticker }, { fetchStockPrice }) {
     const { price } = await fetchStockPrice(ticker as string)
-
-    setMetadata('environment', 'sample-script')
-    setMetadata('ticker', ticker)
-    setMetrics({ type: 'stock', name: 'price', value: price })
 
     return {
       ticker,
