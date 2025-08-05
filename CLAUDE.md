@@ -105,8 +105,25 @@ forge task:publish namespace:taskName
 - TypeScript throughout with proper type definitions
 - Docker support available for frontend deployment
 
+## Hive SDK Integration
+
+The application integrates with Forge&Hive logging platform via the `taskToAction` helper:
+
+- **Automatic Logging**: All task executions are automatically logged to Hive
+- **Environment Variables**: Configure via `.env` file with project UUID and API credentials
+- **Silent Mode**: Falls back gracefully if credentials are not provided
+
+Environment variables:
+```env
+HIVE_PROJECT_NAME=Fritz Application
+HIVE_API_KEY=your_api_key_here
+HIVE_API_SECRET=your_api_secret_here 
+PROJECT_UUID=your_project_uuid_here
+```
+
 ## Key Files
 - `pnpm-workspace.yaml`: Workspace configuration
 - `apps/frontend/react-router.config.ts`: React Router configuration
 - `apps/frontend/app/routes.ts`: Route definitions
 - `apps/server/src/index.ts`: Main server entry point
+- `apps/frontend/app/lib/taskToAction.ts`: Hive SDK integration helper

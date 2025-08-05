@@ -1,4 +1,5 @@
 import { getPrice } from '@fritz/forge-sample';
+import { taskToAction, type ActionResult } from '~/lib/taskToAction';
 
 export interface TickerData {
   ticker: string;
@@ -6,21 +7,15 @@ export interface TickerData {
   date: string;
 }
 
+// Convert the ForgeHive task to an action
+const getPriceAction = taskToAction<TickerData>(getPrice);
+
 export async function fetchTickerPrice(ticker: string): Promise<TickerData> {
-  console.log('fetchTickerPrice', ticker);
-  try {
-    const [result, error, record] = await getPrice.safeRun({ ticker });
-
-    console.log('result', result);
-    console.log('record', record);
-
-    if (error) {
-      throw new Error(`Failed to fetch price for ${ticker}: ${error.message}`);
-    }
-
-    return result as TickerData;
-  } catch (error) {
-    console.error('Error fetching ticker price:', error);
-    throw error;
+  const result: ActionResult<TickerData> = await getPriceAction({ ticker });
+  
+  if (!result.success) {
+    throw new Error(result.error || result.message);
   }
+  
+  return result.data!;
 }

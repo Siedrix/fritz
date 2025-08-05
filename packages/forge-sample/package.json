@@ -18,10 +18,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@forgehive/schema": "^0.1.4",
-    "@forgehive/task": "^0.2.5"
-  },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "^5.0.0",
     "@types/node": "^20.12.0"

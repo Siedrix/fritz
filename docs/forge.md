@@ -1,6 +1,6 @@
-# LLM Guide: ForgeHive Task Management (v0)
+# LLM Guide: Forge&Hive Task Management (v0)
 
-This guide explains how to create, run, publish, and remove tasks in applications using ForgeHive. It's designed for Large Language Models (LLMs) working on projects that have ForgeHive integrated as a task management system.
+This guide explains how to create, run, publish, and remove tasks in applications using Forge&Hive. It's designed for Large Language Models (LLMs) working on projects that have Forge&Hive integrated as a task management system.
 
 **Note**: This documentation is specifically for the CLI-based task management system. Task names and structure are based on the `@forgehive/task` package.
 
@@ -10,7 +10,7 @@ This guide explains how to create, run, publish, and remove tasks in application
 
 ## Overview
 
-ForgeHive uses a "Task and Boundaries" pattern where:
+Forge&Hive uses a "Task and Boundaries" pattern where:
 - **Tasks** are black boxes with validated inputs/outputs using schemas
 - **Boundaries** are explicit interfaces to external dependencies (databases, APIs, file system, etc.)
 - All external calls (network requests, file operations, non-deterministic operations) must go through boundaries
@@ -124,7 +124,7 @@ export const createUser = createTask({
   fn: async function ({ name, email, age }, { saveUser, findUser, sendWelcomeEmail }) {
     console.log(`Creating user: ${email}`);
 
-    // Check if user exists
+    // Check if user exists - Forge&Hive automatically handles thrown errors
     const existing = await findUser(email);
     if (existing) {
       throw new Error('User already exists');
@@ -136,7 +136,11 @@ export const createUser = createTask({
     // Send welcome email
     await sendWelcomeEmail(email, `Welcome ${name}!`);
 
-    return { success: true, userId };
+    // Simply return data on success - no try-catch needed
+    return {
+      message: `User "${name}" created successfully`,
+      data: { userId, email }
+    };
   }
 })
 ```
@@ -147,7 +151,8 @@ export const createUser = createTask({
 2. **Schema Definition**: Use Zod-based schemas to validate all inputs
 3. **Boundary Isolation**: All external operations (network, file system, database, etc.) go in boundaries
 4. **Pure Logic**: Task logic should be deterministic and testable
-5. **Destructuring**: Use destructuring for cleaner code: `({ name, email }, { saveUser, sendEmail })`
+5. **No try-catch needed**: Forge&Hive automatically handles errors - just throw on error, return on success
+6. **Destructuring**: Use destructuring for cleaner code: `({ name, email }, { saveUser, sendEmail })`
 
 ### What Goes in Boundaries
 
@@ -270,6 +275,162 @@ forge task:remove user:createUser
 
 **Note**: This removes the task from the local `forge.json` configuration file only. Remote registry removal is not yet implemented.
 
+## Frontend Integration with taskToAction Pattern
+
+When integrating Forge&Hive tasks into frontend applications (React Router, Next.js, etc.), a common pattern is to create action functions that wrap Forge&Hive tasks with proper error handling and type safety.
+
+### The taskToAction Helper Pattern
+
+Create a reusable helper that converts Forge&Hive tasks into standardized action results:
+
+```typescript
+// lib/taskToAction.ts
+export interface ActionResult<TData = any> {
+  success: boolean
+  message: string
+  data?: TData
+  error?: string
+}
+
+// Helper function that returns a function for executing tasks
+export function taskToAction<TData = any, TTask extends { safeRun: (input: any) => Promise<[any, any, any]>; name?: string } = any>(
+  task: TTask
+): (input: any) => Promise<ActionResult<TData>> {
+  // Extract the task name from the task object
+  const taskName = task.name || 'unknown task';
+
+  return async (input: any): Promise<ActionResult<TData>> => {
+    try {
+      console.log(`🚀 [ACTION] ${taskName} - Starting via Forge&Hive task`);
+      console.log(`📊 [ACTION] ${taskName} - Parameters:`, input);
+
+      // Use safeRun for better error handling
+      const [result, error, executionRecord] = await task.safeRun(input);
+
+      if (error) {
+        console.log(`❌ [ACTION] ${taskName} - TASK FAILED:`, error.message);
+        return {
+          success: false,
+          message: error.message || `Failed to execute ${taskName}`,
+          error: error.message
+        };
+      }
+
+      if (!result) {
+        throw new Error('Task completed but returned null result');
+      }
+
+      console.log(`✅ [ACTION] ${taskName} - SUCCESS:`, result.message);
+      console.log(`📋 [ACTION] ${taskName} - Result data:`, result.data);
+
+      return {
+        success: true,
+        message: result.message || `${taskName} completed successfully`,
+        data: result.data
+      };
+    } catch (error) {
+      console.log(`❌ [ACTION] ${taskName} - CATCH ERROR:`, error);
+      return {
+        success: false,
+        message: `Failed to execute ${taskName}`,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      };
+    }
+  };
+}
+```
+
+### Using taskToAction in Frontend Actions
+
+```typescript
+// actions/portfolio.ts
+import { taskToAction, type ActionResult } from '../lib/taskToAction'
+import { createPortfolioTask, removePortfolioTask, type Portfolio } from '@your-package/portfolios'
+
+export interface CreatePortfolioData {
+  name: string
+  description?: string
+  initialCash: number
+}
+
+// Clean, readable action functions using the taskToAction pattern
+export async function createPortfolio(data: CreatePortfolioData): Promise<ActionResult<Portfolio>> {
+  const action = taskToAction<Portfolio>(createPortfolioTask);
+
+  return await action({
+    name: data.name,
+    initialCash: data.initialCash,
+    description: data.description
+  });
+}
+
+export async function removePortfolio(slug: string): Promise<ActionResult<Portfolio>> {
+  const action = taskToAction<Portfolio>(removePortfolioTask);
+
+  return await action({ slug });
+}
+```
+
+### Benefits of This Pattern
+
+1. **Consistent Error Handling**: All tasks use the same error handling pattern
+2. **Type Safety**: Generic types ensure proper typing for action results
+3. **Automatic Logging**: Built-in logging for debugging and monitoring
+4. **Clean Separation**: Task configuration is separate from execution
+5. **Reusable**: The `taskToAction` helper works with any Forge&Hive task
+6. **Functional Style**: Follows currying pattern for better composition
+
+### Task Error Handling Guidelines
+
+**Important**: Tasks should throw errors instead of returning error status objects:
+
+```typescript
+// ✅ Good: Throw errors for exceptional cases, return data directly for success
+const myTask = createTask({
+  name: 'portfolio:create',
+  description: 'Create a new portfolio',
+  schema,
+  boundaries,
+  fn: async ({ name }, { portfolioExists, savePortfolio }) => {
+    const exists = await portfolioExists(name);
+    if (exists) {
+      throw new Error(`Portfolio with name "${name}" already exists`); // Throw error
+    }
+
+    const portfolio = await savePortfolio({ name });
+    return {
+      message: `Portfolio "${name}" created successfully`,
+      data: portfolio
+    };
+  }
+});
+```
+
+```typescript
+// ❌ Avoid: Don't return error status objects
+const myTask = createTask({
+  fn: async ({ name }, { portfolioExists, savePortfolio }) => {
+    const exists = await portfolioExists(name);
+    if (exists) {
+      return { // Don't return error objects
+        status: 'error',
+        message: `Portfolio with name "${name}" already exists`
+      };
+    }
+    // ...
+  }
+});
+```
+
+### Key Principles:
+
+1. **Throw for errors**: Use `throw new Error()` for exceptional cases
+2. **Return for success**: Simply return the result object - no need for `status: 'success'`
+3. **Consistent format**: Return objects with `message` and `data` properties
+4. **Let taskToAction handle the rest**: The helper converts task results to ActionResult format
+
+This pattern allows the `taskToAction` helper to handle errors consistently using `safeRun`, and frontend code gets predictable `ActionResult` objects with proper type safety.
+
 ## Task Best Practices
 
 ### 1. Schema Design
@@ -324,25 +485,55 @@ const boundaries = {
 
 ### 3. Error Handling
 
+**IMPORTANT**: Forge&Hive tasks handle errors automatically. Do NOT use try-catch blocks unless you need custom cleanup logic.
+
+#### ✅ Default Pattern (Recommended - No try-catch needed)
+
 ```typescript
-const paymentSchema = new Schema({
-  amount: Schema.number().min(0),
-  token: Schema.string()
-});
-
-const boundaries = {
-  chargePayment: async (amount, token) => { /* Payment logic */ },
-  updateOrderStatus: async (status) => { /* Update status */ }
-};
-
 const myTask = createTask({
   name: 'processPayment',
   description: 'Process user payment',
-  schema: paymentSchema,
-  boundaries,
+  schema: new Schema({
+    amount: Schema.number().min(0),
+    token: Schema.string()
+  }),
+  boundaries: {
+    chargePayment: async (amount, token) => { /* Payment logic */ },
+  },
+  fn: async ({ amount, token }, { chargePayment }) => {
+    console.log(`Processing payment: $${amount}`);
+
+    // Forge&Hive automatically catches and handles any errors thrown here
+    const result = await chargePayment(amount, token);
+
+    if (!result.success) {
+      throw new Error(`Payment failed: ${result.error}`); // This is automatically handled
+    }
+
+    // Simply return data on success
+    return {
+      message: `Payment of $${amount} processed successfully`,
+      data: { transactionId: result.id }
+    };
+  }
+});
+```
+
+#### ⚠️ Only Use try-catch for Custom Cleanup Logic
+
+```typescript
+const myTaskWithCleanup = createTask({
+  name: 'processPaymentWithCleanup',
+  description: 'Process payment with cleanup on failure',
+  schema: new Schema({
+    amount: Schema.number().min(0),
+    token: Schema.string()
+  }),
+  boundaries: {
+    chargePayment: async (amount, token) => { /* Payment logic */ },
+    updateOrderStatus: async (status) => { /* Update status */ }
+  },
   fn: async ({ amount, token }, { chargePayment, updateOrderStatus }) => {
-    // Try-catch is optional - tasks handle errors automatically
-    // Use it only when you need custom error handling logic
     try {
       console.log(`Processing payment: $${amount}`);
       const result = await chargePayment(amount, token);
@@ -351,18 +542,25 @@ const myTask = createTask({
         throw new Error(`Payment failed: ${result.error}`);
       }
 
-      return { success: true, transactionId: result.id };
+      return {
+        message: `Payment of $${amount} processed successfully`,
+        data: { transactionId: result.id }
+      };
     } catch (error) {
-      // Optional: Custom error handling (e.g., update order status to failed)
-      await updateOrderStatus('failed');
-      console.error('Payment processing failed', error);
-      throw error; // Re-throw to preserve error context
+      // ONLY use try-catch when you need custom cleanup logic
+      await updateOrderStatus('failed'); // Custom cleanup action
+      console.error('Payment processing failed, status updated to failed', error);
+      throw error; // MUST re-throw to preserve error context
     }
   }
 });
 ```
 
-**Note**: Try-catch blocks are optional in tasks. The task system automatically handles errors. Use try-catch only when you need custom error handling logic, such as updating database state or performing cleanup actions.
+**Key Rules:**
+- **Default**: No try-catch needed - Forge&Hive handles all errors automatically
+- **Exception**: Only use try-catch when you need custom cleanup actions (database updates, logging, etc.)
+- **Always re-throw**: If you catch an error, you MUST re-throw it to preserve the error context
+- **Never swallow errors**: Don't return success from a catch block
 
 ### 4. Testing Tasks
 
@@ -429,8 +627,8 @@ const myTask = createTask({
 // Throws on error
 const result = await myTask.run(input);
 
-// Safe execution
-const [error, result, boundaryData] = await myTask.safeRun(input);
+// Safe execution (recommended)
+const [result, error, executionRecord] = await myTask.safeRun(input);
 ```
 
 ### Testing
@@ -442,4 +640,4 @@ myTask.mockBoundary('boundaryName', createMockBoundary(jest.fn()));
 myTask.resetMocks();
 ```
 
-This guide provides the essential patterns for working with ForgeHive tasks. Remember: keep tasks focused, isolate external operations in boundaries, and always validate inputs with schemas.
+This guide provides the essential patterns for working with Forge&Hive tasks. Remember: keep tasks focused, isolate external operations in boundaries, and always validate inputs with schemas.
